@@ -1,0 +1,113 @@
+from datetime import datetime
+import pymongo
+from pymongo.errors import ConnectionFailure
+
+try:
+    client = pymongo.MongoClient('localhost', 27017)
+    print("Connected")
+
+except ConnectionFailure as e:
+    print("Connection Fail", e)
+    # Connecting to the DB & Collection
+
+class Customer:
+
+    def __init__(self, account, fname, lname, ssn, address, deposit):
+        self.account = account
+        self.first_name = fname
+        self.last_name = lname
+        self.ssn = ssn
+        self.address = address
+        self.deposit = deposit
+        self.option = 0
+
+    def select_option(self):
+        print("How Can I help you today?"
+              "\n\t1) Add a new Customer"
+              "\n\t2) Withdraw Money"
+              "\n\t3) Deposit Money"
+              "\n\t4) Display Transactions"
+              )
+        self.option = int(input("\nEnter Option:"))
+        return int(self.option)
+
+    def add_customer(self):
+        self.first_name = input("Enter First Name: ")
+        self.last_name = input("Enter Last Name: ")
+        self.ssn = input("Enter SSN: ")
+        self.address = input("Enter Address: ")
+        self.acct_type = input("Enter Account Type(Saving/Checking): ")
+        self.deposit = input("Enter Amount: ")
+
+        new_customer = {"fname": self.first_name,
+                        "lname": self.last_name,
+                        "address": self.address,
+                        "ssn": self.ssn,
+                        "transactions": [
+                            {"type": self.acct_type,
+                             "balance": self.deposit,
+                             "ovfee": 10,
+                             "interest": 25,
+                             "timestamp": datetime.today()}]
+                        }
+        return new_customer
+
+    def withdraw(self, amount, account):
+        self.account = account
+        self.amount = amount
+        print(self.account,self.amount)
+        return self.account,self.amount
+
+    def deposit(self):  # , c_deposit
+        # self.deposit = c_deposit
+        amount = float(input("Enter amount to be Deposited: "))
+        self.balance += amount
+        print("\n Amount Deposited:", amount)
+
+    def display_transactions(self):
+        # transactions = trans.find({"fname": "Rose"})
+        # for trans in transactions:
+        # print(trans['fname'])
+        pass
+
+db = client.Bank
+trans = db.ctrans
+
+c = Customer('1004','','','','','')
+option = c.select_option()
+if option == 1:
+    # c.add_customer()
+    new_customer = c.add_customer()
+    insert_new1 = trans.insert(new_customer)  # defined on line12
+elif option == 2:
+    account = input("Enter Account")
+    amount = input("Enter Amount to Withdraw")
+    typeOpt = int(input("Enter 1 for Saving\n"
+                   "Enter 2 for Checking"))
+    if typeOpt==1:
+        actype = "Saving"
+    elif typeOpt==2:
+        actype = "Checking"
+    else:
+        print("Enter option 1 or 2")
+
+    c.withdraw(amount,account)
+
+
+elif option == 3:
+    print(option)
+elif option == 4:
+    for x in trans.find():
+        print(x)
+else:
+    print(option)
+
+# c.display_transactions()
+
+
+# def from_input(self, first_name: input("Enter First Name"), last_name: input("Enter Last Name"), ssn: input("SSN"), address: input("Enter Address"), deposit: input("Enter Amount")):
+#     self.first_name = input("Enter First Name")
+#     self.last_name = input("Enter Last Name")
+#     self.ssn = input("SSN")
+#     self.address = input("Enter Address")
+#     self.deposit = input("Enter Amount")
